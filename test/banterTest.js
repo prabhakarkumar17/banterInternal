@@ -5,8 +5,7 @@ describe('Banter Coin', () => {
     let creator, buyer, banterContractAddress;
     var banter = 0, erc20 = 0, erc1155 = 0;
 
-    beforeEach(async() => {
-            
+    beforeEach(async() => {          
             
     });
 
@@ -21,39 +20,39 @@ describe('Banter Coin', () => {
             erc1155 = await erc1155Abi.deploy();
 
             banterContractAddress = banter.address;
-            console.log(banter.address);
+            //console.log(banter.address);
 
             [creator, buyer, _] = await ethers.getSigners();
             console.log(`Creator : ${creator.address} and Buyer : ${buyer.address}`);
         });
     })
-    
+
     describe('Giving initial BNT coins', () => {
         it('Buyer should be minted with initial BNT', async () => {
-            await erc20.initialBNT(buyer.address);
-            const buyerBalance = await erc20.balanceOf(buyer.address);
+            await banter.initialBNTDeposit(buyer.address);
+            const buyerBalance = await banter.BNTBalance(buyer.address);
             console.log(`Balance : ${buyerBalance}`);            
-        });
-    })
-
-    describe('Creating creator coin', () => {
-        it('Should create creator coin of desired ordered', async () => {
-            await banter.createCoin(creator.address, 1000);
-            [values] = await banter.balanceOfCreator(creator.address);
-            console.log(`Creator details are : Token id - ${values[0]} & Balance - ${values[1]}`);
         });
     })
 
     describe('Giving approval to the contract', () => {
         it('Should give approval to the smart contract', async() => {
-            await banter.approveToken(banterContractAddress, 50);
+            await banter.approveToken(banterContractAddress, 80);
             console.log(await banter.allowanceBNT(buyer.address, banterContractAddress));
         })
     })
 
+    describe('Creating creator coin', () => {
+        it('Should create creator coin of desired ordered', async () => {
+            await banter.createCoin(creator.address, 10000);
+            [values] = await banter.balanceOfCreator(creator.address);
+            console.log(`Creator details are : Token id - ${values[0]} & Balance - ${values[1]}`);
+        });
+    })
+
     describe('Purchasing of creator coin', () => {
         it('Should purchase successfully', async() => {
-            await banter.buyCoins(buyer.address, 0, 20, 0);
+            await banter.buyCoins(buyer.address, 0, 50, 0);
         })
     })
 })

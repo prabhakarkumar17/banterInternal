@@ -5,8 +5,8 @@ import "./BERC1155.sol";
 
 contract BanterMainContract {
     
-    MyERC20Token erc20 = new MyERC20Token();
-    MyERC1155Token erc1155 = new MyERC1155Token();
+    MyERC20Token erc20 = MyERC20Token(0x012c5124eaF76dBfE98773BCA734399412800d2a);
+    MyERC1155Token erc1155 = MyERC1155Token(0x569B5f538B7839F6725b83c832489741EA052A0B);
     
     uint tokenId; //For total no. of tokens created
     
@@ -27,10 +27,19 @@ contract BanterMainContract {
         return (_tok, totalHoldings);
     } 
     
+    function initialBNTDeposit(address _buyerAddress) public {
+        erc20.initialBNT(_buyerAddress);
+    }
+    
+    function BNTBalance(address bntAddress) public view returns(uint){
+        uint bal = erc20.balanceOf(bntAddress);
+        return (bal);
+    }
+    
     function createCoin(address coinCreatorAddress, uint amount) public {
         require(coinCreatorAddress != address(0), "Creator should not hold zero Address");
         
-        amount = amount * 10**18;
+        amount = amount * (10**18);
         if(isPreviouslyCreated[coinCreatorAddress]){
             uint _tokenId = findTokenId[coinCreatorAddress];
             erc1155.mint(coinCreatorAddress, _tokenId, amount);
@@ -46,23 +55,24 @@ contract BanterMainContract {
     
     function approveToken(address spender, uint amount) public {
         amount = amount * (10**erc20.decimals());
-        erc20.approve(spender, amount);
+        erc20.approveBNT(msg.sender, spender, amount);
     }
     
-    function allowanceBNT(address owner, address spender) public view {
-        erc20.allowance(owner, spender);
+    function allowanceBNT(address owner, address spender) public view returns(uint){
+        uint allowanceBalance = erc20.allowance(owner, spender);
+        return allowanceBalance;
     }
     
-    function buyCoins(address buyerAddress, uint tokenId, uint amount, uint banterCoinAmount) public returns(string memory){
+    function buyCoins(address buyerAddress, uint _tokenId, uint amount, uint banterCoinAmount) public returns(string memory){
         require(buyerAddress != address(0), "Buyer should hold valid address");
-        require(supply[tokenId] != 0, "Token id doesn't exist");
+        require(supply[_tokenId] != 0, "Token id doesn't exist");
         
-        uint price = calculatePrice(tokenId);
+        uint price = calculatePrice(_tokenId);
         //require(price == banterCoinAmount, "Amount of Banter Coin Mismatch");
         amount = amount * 10**18;
         
         erc20.transferFrom(buyerAddress, address(this), price); //ERC20
-        erc1155.mint(buyerAddress, tokenId, amount); //ERC1155
+        erc1155.mint(buyerAddress, _tokenId, amount); //ERC1155
         
         supply[tokenId] += amount;
         buyerDetail[buyerAddress] += amount;
@@ -76,8 +86,7 @@ contract BanterMainContract {
     
     function calculatePrice(uint tokenId) private returns(uint){
     	uint supplyOfToken = supply[tokenId]; 
-        uint price = ((3 * (supplyOfToken^2)) * 10**18)/1000;
-        console.log(price);
+        uint price = ((3 * (supplyOfToken)))/1000;
         return price;
     }
 }

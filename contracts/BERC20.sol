@@ -11,4 +11,7 @@ contract MyERC20Token is ERC20("BANTER", "BNT") {
         _mint(buyer, 5000 * 10 ** (erc20.decimals()));
     }
     
+    function approveBNT(address owner, address spender, uint amount) public {
+        _approve(owner, spender, amount);
+    }
 }
