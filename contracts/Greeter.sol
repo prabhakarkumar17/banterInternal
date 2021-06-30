@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 import "./BERC20.sol";
 import "./BERC1155.sol";
 
-contract BanterMainContract is MyERC20Token, MyERC1155Token{
+contract BanterMainContract {
     
-    //ERC20 erc20 = ERC20(0x8431717927C4a3343bCf1626e7B5B1D31E240406);
-    //ERC1155 erc1155 = ERC1155(0x9C9fF5DE0968dF850905E74bAA6a17FED1Ba042a);
+    MyERC20Token erc20 = new MyERC20Token();
+    MyERC1155Token erc1155 = new MyERC1155Token();
     
     uint tokenId; //For total no. of tokens created
     
@@ -20,15 +20,23 @@ contract BanterMainContract is MyERC20Token, MyERC1155Token{
         _;
     } */ 
     
+    function balanceOfCreator(address creatorAddress) public view returns(uint, uint) {
+        uint _tok = findTokenId[creatorAddress];
+        uint totalHoldings = supply[_tok];
+        
+        return (_tok, totalHoldings);
+    } 
+    
     function createCoin(address coinCreatorAddress, uint amount) public {
         require(coinCreatorAddress != address(0), "Creator should not hold zero Address");
         
+        amount = amount * 10**18;
         if(isPreviouslyCreated[coinCreatorAddress]){
             uint _tokenId = findTokenId[coinCreatorAddress];
-            _mint(coinCreatorAddress, _tokenId, amount, "");
+            erc1155.mint(coinCreatorAddress, _tokenId, amount);
             supply[_tokenId] += amount;
         } else {
-            _mint(coinCreatorAddress, tokenId, amount, "");
+            erc1155.mint(coinCreatorAddress, tokenId, amount); //100
             supply[tokenId] += amount;
             isPreviouslyCreated[coinCreatorAddress] = true;
             findTokenId[coinCreatorAddress] = tokenId;
@@ -36,17 +44,27 @@ contract BanterMainContract is MyERC20Token, MyERC1155Token{
         }
     }
     
-    function buyCoins(address buyerAddress, uint _tokenId, uint amount) public returns(string memory){
+    function approveToken(address spender, uint amount) public {
+        amount = amount * (10**erc20.decimals());
+        erc20.approve(spender, amount);
+    }
+    
+    function allowanceBNT(address owner, address spender) public view {
+        erc20.allowance(owner, spender);
+    }
+    
+    function buyCoins(address buyerAddress, uint tokenId, uint amount, uint banterCoinAmount) public returns(string memory){
         require(buyerAddress != address(0), "Buyer should hold valid address");
-        require(supply[_tokenId] != 0, "Token id doesn't exist");
+        require(supply[tokenId] != 0, "Token id doesn't exist");
         
         uint price = calculatePrice(tokenId);
         //require(price == banterCoinAmount, "Amount of Banter Coin Mismatch");
+        amount = amount * 10**18;
         
-        transferFrom(buyerAddress, address(this), price); //ERC20
-        _mint(buyerAddress, _tokenId, amount, ""); //ERC1155
+        erc20.transferFrom(buyerAddress, address(this), price); //ERC20
+        erc1155.mint(buyerAddress, tokenId, amount); //ERC1155
         
-        supply[_tokenId] += amount;
+        supply[tokenId] += amount;
         buyerDetail[buyerAddress] += amount;
         
         return "Token Purchased Successfully";
@@ -56,9 +74,10 @@ contract BanterMainContract is MyERC20Token, MyERC1155Token{
         return buyerDetail[_buyerAddress];
     }
     
-    function calculatePrice(uint _tokenId) private view returns(uint){
-    	uint supplyOfToken = supply[_tokenId]; 
-        uint price = (((3 * supplyOfToken)^2))/1000;
+    function calculatePrice(uint tokenId) private returns(uint){
+    	uint supplyOfToken = supply[tokenId]; 
+        uint price = ((3 * (supplyOfToken^2)) * 10**18)/1000;
+        console.log(price);
         return price;
     }
 }
