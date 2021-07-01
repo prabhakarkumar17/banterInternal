@@ -4,9 +4,9 @@ import "./BERC20.sol";
 import "./BERC1155.sol";
 
 contract BanterMainContract {
-    
-    MyERC20Token erc20 = MyERC20Token(0x012c5124eaF76dBfE98773BCA734399412800d2a);
-    MyERC1155Token erc1155 = MyERC1155Token(0x569B5f538B7839F6725b83c832489741EA052A0B);
+        
+        MyERC20Token erc20 = new MyERC20Token();
+        MyERC1155Token erc1155 = new MyERC1155Token();
     
     uint tokenId; //For total no. of tokens created
     
@@ -71,7 +71,7 @@ contract BanterMainContract {
         //require(price == banterCoinAmount, "Amount of Banter Coin Mismatch");
         amount = amount * 10**18;
         
-        erc20.transferFrom(buyerAddress, address(this), price); //ERC20
+        erc20.transferFrom(buyerAddress, address(this), (price * 10**18)); //ERC20
         erc1155.mint(buyerAddress, _tokenId, amount); //ERC1155
         
         supply[tokenId] += amount;
@@ -86,7 +86,8 @@ contract BanterMainContract {
     
     function calculatePrice(uint tokenId) private returns(uint){
     	uint supplyOfToken = supply[tokenId]; 
-        uint price = ((3 * (supplyOfToken)))/1000;
+    	supplyOfToken = supplyOfToken/(10**18);
+        uint price = ((3 * (supplyOfToken)^2))/1000;
         return price;
     }
 }
