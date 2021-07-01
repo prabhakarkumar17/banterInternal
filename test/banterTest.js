@@ -36,14 +36,14 @@ describe('Banter Coin', () => {
         });
     })
 
-    describe('Giving approval to the contract', () => {
+    /* describe('Giving approval to the contract', () => {
         it('Should give approval to the smart contract for coin purchasing', async() => {
             await banter.approveToken(banterContractAddress, 1000);
             var allowance = await banter.allowanceBNT(buyer.address, banterContractAddress);
             expect(allowance).to.be.equal('1000000000000000000000');
             console.log(`BNT Tokens allowed to contract is ${allowance}`);
         })
-    })
+    }) */
 
     describe('Creating creator coin', () => {
         it('Should create creator coin of amount ordered', async () => {

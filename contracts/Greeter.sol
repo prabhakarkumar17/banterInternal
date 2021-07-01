@@ -53,7 +53,7 @@ contract BanterMainContract {
         }
     }
     
-    function approveToken(address spender, uint amount) public {
+    /* function approveToken(address spender, uint amount) public {
         amount = amount * (10**erc20.decimals());
         erc20.approveBNT(msg.sender, spender, amount);
     }
@@ -61,7 +61,7 @@ contract BanterMainContract {
     function allowanceBNT(address owner, address spender) public view returns(uint){
         uint allowanceBalance = erc20.allowance(owner, spender);
         return allowanceBalance;
-    }
+    } */
     
     function buyCoins(address buyerAddress, uint _tokenId, uint amount, uint banterCoinAmount) public returns(string memory){
         require(buyerAddress != address(0), "Buyer should hold valid address");
