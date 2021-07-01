@@ -56,7 +56,7 @@ describe('Banter Coin', () => {
 
     describe('Purchasing of creator coin', () => {
         it('Should purchase successfully', async() => {
-            expect(await banter.allowanceBNT(buyer.address, banterContractAddress)).to.be.greaterThanOrEqual('100000000000000000000'); //Greater than tokens allowed
+            //expect(await banter.allowanceBNT(buyer.address, banterContractAddress)).to.be.greaterThanOrEqual('100000000000000000000'); //Greater than tokens allowed
             expect(await banter.BNTBalance(buyer.address)).to.be.greaterThanOrEqual('100000000000000000000'); //Greater than price to be paid
             expect(await banter.balanceOfCreator(creator.address)).to.be.greaterThanOrEqual('100000000000000000000');//Creator coin should be greater that amount ordered
             await banter.buyCoins(buyer.address, 0, 100, 0);
